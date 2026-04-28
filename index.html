@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="vi" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="color-scheme" content="light">
+    <title>MedConnect VN - Clinical Intelligence Platform</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <!-- Nâng cấp Font chữ: Plus Jakarta Sans cho Tiêu đề, Inter cho Nội dung đọc -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --ink: #0f172a;
+            --brand: #2563eb;
+            --panel: rgba(255, 255, 255, 0.85);
+        }
+
+        html, body { margin: 0; padding: 0; }
+
+        body {
+            font-family: "Inter", sans-serif;
+            color: var(--ink);
+            background:
+                radial-gradient(circle at 8% 15%, rgba(37, 99, 235, 0.1), transparent 32%),
+                radial-gradient(circle at 88% 10%, rgba(16, 185, 129, 0.05), transparent 24%),
+                linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+            overflow-x: hidden;
+        }
+
+        h1, h2, h3, h4, h5, .font-display {
+            font-family: "Plus Jakarta Sans", sans-serif;
+            letter-spacing: -0.02em;
+        }
+
+        section { scroll-margin-top: 96px; }
+
+        .glass-nav {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(24px);
+            border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+        }
+
+        .brand-mark {
+            background: linear-gradient(145deg, #2563eb 0%, #0f172a 100%);
+            box-shadow: 0 10px 20px -10px rgba(37, 99, 235, 0.85);
+        }
+
+        .panel, .metric-card, .hospital-card {
+            background: var(--panel);
+            backdrop-filter: blur(18px);
+            border: 1px solid rgba(226, 232, 240, 0.9);
+            box-shadow: 0 25px 60px -30px rgba(15, 23, 42, 0.1);
+        }
+
+        .panel-strong {
+            background: linear-gradient(180deg, #0f172a 0%, #020617 100%);
+            border: 1px solid rgba(148, 163, 184, 0.15);
+            box-shadow: 0 36px 90px -45px rgba(2, 6, 23, 0.95);
+        }
+
+        .premium-shell {
+            position: relative;
+            border-radius: 2rem;
+            background: linear-gradient(180deg, #0f172a 0%, #020617 100%);
+            border: 1px solid rgba(148, 163, 184, 0.2);
+            box-shadow: 0 40px 100px -50px rgba(2, 6, 23, 0.95);
+        }
+
+        .hero-grid::before {
+            content: ""; position: absolute; width: 18rem; height: 18rem; top: -4rem; right: -3rem;
+            background: rgba(37, 99, 235, 0.15); border-radius: 999px; filter: blur(80px); z-index: -1;
+        }
+
+        .status-pill {
+            display: inline-flex; align-items: center; gap: 0.55rem;
+            border-radius: 999px; padding: 0.55rem 0.9rem;
+            font-size: 0.75rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase;
+        }
+        .status-online { background: rgba(16, 185, 129, 0.15); color: #34d399; }
+        .signal-dot { width: 0.6rem; height: 0.6rem; border-radius: 999px; }
+        .signal-dot--ok { background: #10b981; box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.2); animation: pulse-soft 2s infinite; }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+            color: white; box-shadow: 0 15px 25px -10px rgba(37, 99, 235, 0.6);
+            transition: all 0.3s ease;
+        }
+        .btn-primary:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 20px 30px -10px rgba(37, 99, 235, 0.8); }
+        .btn-primary:disabled { opacity: 0.7; cursor: wait; }
+
+        .btn-ghost {
+            background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1);
+            color: white; transition: all 0.2s ease;
+        }
+        .btn-ghost:hover { background: rgba(255, 255, 255, 0.1); border-color: rgba(96, 165, 250, 0.4); }
+
+        .command-shell {
+            display: flex; align-items: center; gap: 0.85rem; border-radius: 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.15); background: rgba(0, 0, 0, 0.4);
+            padding: 0.5rem 1rem; transition: border-color 0.2s ease;
+        }
+        .command-shell:focus-within { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2); }
+        .command-input { w-full; background: transparent; border: 0; outline: none; color: white; font-size: 1.1rem; line-height: 1.5; }
+
+        /* ==========================================================
+           TYPOGRAPHY CHUẨN Y KHOA: Cực kỳ sắc nét, dịu mắt, dễ đọc
+           ========================================================== */
+        .article-content {
+            color: #f1f5f9; /* Xám sáng dịu mắt */
+            line-height: 1.85; /* Khoảng cách dòng lớn để dễ quét chữ */
+            font-size: 1.05rem; 
+            font-weight: 400;
+        }
+        .article-content h1 { 
+            font-family: "Plus Jakarta Sans", sans-serif; font-size: 2.25rem; color: #ffffff; 
+            margin: 2rem 0 1.25rem 0; border-bottom: 2px solid rgba(255,255,255,0.08); padding-bottom: 0.75rem; font-weight: 800; 
+        }
+        .article-content h2 { 
+            font-family: "Plus Jakarta Sans", sans-serif; font-size: 1.5rem; color: #60a5fa; 
+            margin: 2rem 0 1rem 0; font-weight: 700; letter-spacing: -0.01em; 
+        }
+        .article-content h3 { 
+            font-family: "Plus Jakarta Sans", sans-serif; font-size: 1.2rem; color: #93c5fd; 
+            margin: 1.75rem 0 0.75rem 0; font-weight: 600; 
+        }
+        .article-content p { margin: 1rem 0; }
+        .article-content ul, .article-content ol { margin: 1rem 0; padding-left: 1.2rem; list-style-position: inside; }
+        .article-content li { 
+            margin: 0.75rem 0; padding-left: 0.5rem; 
+            border-left: 2px solid transparent; transition: border-color 0.2s;
+        }
+        .article-content li:hover { border-left-color: #3b82f6; } /* Hiệu ứng hover dòng */
+        
+        /* Tô sáng các từ khóa in đậm để dễ đọc nhanh (Scan reading) */
+        .article-content strong { 
+            color: #ffffff; font-weight: 700; 
+            background-color: rgba(255,255,255,0.08); 
+            padding: 0.15rem 0.4rem; border-radius: 6px; 
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        } 
+        .article-content em { color: #94a3b8; font-style: italic; }
+
+        .hospital-card { transition: all 0.3s ease; border: 1px solid rgba(226, 232, 240, 0.8); }
+        .hospital-card:hover { transform: translateY(-5px); border-color: #3b82f6; box-shadow: 0 20px 40px -15px rgba(37, 99, 235, 0.2); }
+        .pill-active { background: white; color: var(--brand); box-shadow: 0 10px 20px -10px rgba(37, 99, 235, 0.3); }
+
+        .chart-shell { position: relative; width: 100%; height: 360px; }
+        @keyframes rise { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes pulse-soft { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.3); opacity: 0.5; } }
+        .result-enter { animation: rise 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+    </style>
+</head>
+<body class="antialiased">
+    <nav class="glass-nav fixed inset-x-0 top-0 z-50">
+        <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between gap-6">
+            <button type="button" onclick="window.scrollTo({ top: 0, behavior: 'smooth' })" class="flex items-center gap-3 text-left">
+                <span class="brand-mark w-10 h-10 rounded-xl flex items-center justify-center text-white text-sm font-bold">MC</span>
+                <span class="font-display text-2xl font-bold text-slate-900 tracking-tight">MedConnect<span class="text-blue-600">VN</span></span>
+            </button>
+            <div class="hidden lg:flex items-center gap-8 text-sm font-bold text-slate-500 uppercase tracking-wider">
+                <button type="button" onclick="scrollToSection('hero')" class="hover:text-blue-600 transition">Trang chủ</button>
+                <button type="button" onclick="scrollToSection('search')" class="hover:text-blue-600 transition">Tra cứu AI</button>
+                <button type="button" onclick="scrollToSection('hospitals')" class="hover:text-blue-600 transition">Bệnh viện</button>
+                <button type="button" onclick="scrollToSection('stats')" class="hover:text-blue-600 transition">Hạ tầng</button>
+            </div>
+            <div class="flex items-center gap-3">
+                <a href="tel:115" class="px-6 py-2.5 rounded-full bg-red-50 text-red-600 border border-red-100 text-sm font-bold hover:bg-red-100 transition shadow-sm animate-pulse">🚑 Cấp cứu 115</a>
+            </div>
+        </div>
+    </nav>
+
+    <main>
+        <section id="hero" class="pt-40 pb-20 px-6 overflow-hidden relative">
+            <div class="max-w-7xl mx-auto hero-grid grid gap-12 xl:grid-cols-2 items-center relative z-10">
+                <div>
+                    <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-blue-200 bg-blue-50 text-blue-700 text-xs font-bold uppercase tracking-widest shadow-sm">
+                        Tri thức y tế chuẩn xác
+                    </div>
+                    <h1 class="mt-6 text-5xl md:text-7xl font-extrabold text-slate-900 leading-[1.1]">
+                        Tra cứu y khoa
+                        <span class="block text-blue-600">Thông minh,</span>
+                        <span class="block">Dễ hiểu.</span>
+                    </h1>
+                    <p class="mt-6 max-w-xl text-lg text-slate-600 leading-relaxed font-medium">
+                        Tra cứu hàng ngàn loại thuốc, triệu chứng và kết nối trực tiếp bản đồ bệnh viện toàn quốc với giao diện văn bản y khoa cao cấp, tối ưu cho việc đọc.
+                    </p>
+                    <div class="mt-10 flex flex-wrap gap-4">
+                        <button type="button" onclick="scrollToSection('search')" class="btn-primary px-8 py-4 rounded-xl text-base font-bold">Mở Tra cứu AI</button>
+                        <button type="button" onclick="scrollToSection('hospitals')" class="px-8 py-4 rounded-xl bg-white border border-slate-200 text-slate-900 font-bold hover:bg-slate-50 transition shadow-sm">Tìm bệnh viện</button>
+                    </div>
+                </div>
+
+                <div class="panel rounded-[2rem] p-8 relative overflow-hidden">
+                    <div class="flex items-center justify-between gap-4 mb-8">
+                        <div>
+                            <p class="text-[11px] font-extrabold uppercase tracking-widest text-blue-600">Trải nghiệm đọc tối ưu</p>
+                            <h2 class="mt-2 text-3xl font-display font-bold text-slate-900">Chuẩn hóa thông tin</h2>
+                        </div>
+                    </div>
+                    <div class="space-y-4">
+                        <div class="metric-card rounded-2xl p-5 bg-white">
+                            <p class="text-base font-bold text-slate-900">💊 Dịu mắt, rõ ràng</p>
+                            <p class="mt-2 text-sm text-slate-500 leading-relaxed">Phông chữ và bảng màu được nghiên cứu đặc biệt, làm nổi bật các cảnh báo tác dụng phụ quan trọng.</p>
+                        </div>
+                        <div class="metric-card rounded-2xl p-5 bg-white">
+                            <p class="text-base font-bold text-slate-900">🏥 Chỉ dẫn Y tế</p>
+                            <p class="mt-2 text-sm text-slate-500 leading-relaxed">Tự động gợi ý chuyên khoa sau khi phân tích triệu chứng của bạn.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- PHẦN TRA CỨU AI CHUYÊN SÂU -->
+        <section id="search" class="py-24 px-6 bg-slate-900 relative">
+            <div class="max-w-7xl mx-auto relative z-10">
+                <div class="grid gap-10 xl:grid-cols-[1.2fr_0.8fr] items-start">
+                    <div>
+                        <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-white/10 bg-white/5 text-blue-300 text-xs font-bold uppercase tracking-widest">
+                            MedConnect Search Suite
+                        </div>
+                        <h2 class="mt-6 text-4xl md:text-5xl text-white font-bold leading-tight font-display">
+                            Phòng Lab Tra cứu AI
+                        </h2>
+                        <p class="mt-4 text-lg text-slate-400 leading-relaxed">
+                            Nhập bất kỳ loại thuốc, vaccine hay triệu chứng. Hệ thống cung cấp tài liệu được căn chỉnh Typography chuyên nghiệp nhất.
+                        </p>
+
+                        <div class="premium-shell mt-10 p-6 md:p-8">
+                            <div class="command-shell">
+                                <span id="command-dot" class="signal-dot signal-dot--ok shrink-0"></span>
+                                <input id="ai-query" type="text" class="command-input w-full bg-transparent border-none text-white outline-none" placeholder="Ví dụ: Công dụng và liều dùng Paracetamol..." oninput="toggleClearButton()" onkeydown="if(event.key === 'Enter') askAI()">
+                                <button id="clear-query" type="button" onclick="clearAIQuery()" class="hidden px-4 py-2 rounded-lg text-sm font-bold text-slate-300 hover:bg-white/10 transition">Xóa</button>
+                            </div>
+
+                            <div class="mt-6 flex flex-wrap gap-4">
+                                <button id="ask-ai-btn" type="button" onclick="askAI()" class="btn-primary px-8 py-4 rounded-xl text-base font-bold">Tra cứu chuyên sâu</button>
+                                <button type="button" onclick="copyCurrentResult()" class="btn-ghost px-6 py-4 rounded-xl text-base font-bold">Sao chép kết quả</button>
+                            </div>
+
+                            <p id="ai-feedback" class="mt-4 text-sm text-slate-400">Trạng thái: Sẵn sàng tra cứu.</p>
+
+                            <div class="mt-8 pt-6 border-t border-white/10">
+                                <p class="text-[11px] font-bold uppercase tracking-widest text-slate-500 mb-4">Gợi ý truy vấn nhanh</p>
+                                <div id="quick-query-list" class="flex flex-wrap gap-3"></div>
+                            </div>
+                        </div>
+
+                        <!-- Khung Loading -->
+                        <div id="ai-loader" class="hidden mt-8 result-enter">
+                            <div class="panel-strong rounded-[2rem] p-8 text-center border border-blue-500/30">
+                                <div class="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500 mb-4"></div>
+                                <h3 class="text-lg font-bold text-white mb-2">Đang phân tích và định dạng văn bản...</h3>
+                                <p class="text-slate-400 text-sm">Quá trình này giúp văn bản y khoa trở nên dễ đọc và bắt mắt hơn.</p>
+                            </div>
+                        </div>
+
+                        <!-- Khung Hiển thị Kết quả AI -->
+                        <div id="ai-result" class="hidden mt-8 space-y-6"></div>
+                    </div>
+
+                    <!-- Cột Side-bar thông tin an toàn -->
+                    <aside class="space-y-6">
+                        <div class="panel-strong rounded-[2rem] p-8">
+                            <p class="text-[11px] font-bold uppercase tracking-widest text-slate-500">Lịch sử tra cứu</p>
+                            <h3 class="mt-2 text-2xl font-display font-bold text-white mb-4">Gần đây</h3>
+                            <div id="recent-searches" class="flex flex-col gap-3"></div>
+                            <button type="button" onclick="clearRecentSearches()" class="mt-4 text-xs font-semibold text-slate-500 hover:text-white transition uppercase">Xóa lịch sử</button>
+                        </div>
+
+                        <div class="panel-strong rounded-[2rem] p-8 border border-red-900/30">
+                            <div class="flex items-center gap-3 mb-4">
+                                <span class="text-2xl">⚠️</span>
+                                <h3 class="text-xl font-display font-bold text-white">Cảnh báo An toàn</h3>
+                            </div>
+                            <ul class="space-y-3 text-sm text-slate-400 leading-relaxed">
+                                <li><strong>1.</strong> Kết quả AI chỉ mang tính tham khảo thông tin nhanh, không phải là lời khuyên y tế chính thức.</li>
+                                <li><strong>2.</strong> Không tự ý thay đổi liều lượng thuốc nếu không có chỉ định của Bác sĩ.</li>
+                                <li><strong>3.</strong> Nếu có dấu hiệu nguy hiểm (khó thở, lơ mơ), hãy gọi ngay <strong>115</strong>.</li>
+                            </ul>
+                        </div>
+                    </aside>
+                </div>
+            </div>
+        </section>
+
+        <!-- BẢN ĐỒ BỆNH VIỆN -->
+        <section id="hospitals" class="py-24 px-6 bg-slate-50">
+            <div class="max-w-7xl mx-auto">
+                <div class="mb-12">
+                    <p class="text-[11px] font-bold uppercase tracking-widest text-blue-600 mb-2">Mạng lưới Y tế</p>
+                    <h2 class="text-4xl text-slate-900 font-bold font-display">Danh mục Bệnh viện Việt Nam</h2>
+                </div>
+
+                <div class="panel rounded-[2rem] p-6 mb-10">
+                    <div class="flex flex-wrap gap-3 mb-6">
+                        <button class="reg-btn pill-active px-6 py-2.5 rounded-xl text-sm font-bold text-slate-500 transition border border-slate-200" data-region="all" onclick="filterRegion('all')">Tất cả</button>
+                        <button class="reg-btn px-6 py-2.5 rounded-xl text-sm font-bold text-slate-500 hover:text-blue-600 transition border border-slate-200 bg-white" data-region="bac" onclick="filterRegion('bac')">Miền Bắc</button>
+                        <button class="reg-btn px-6 py-2.5 rounded-xl text-sm font-bold text-slate-500 hover:text-blue-600 transition border border-slate-200 bg-white" data-region="trung" onclick="filterRegion('trung')">Miền Trung</button>
+                        <button class="reg-btn px-6 py-2.5 rounded-xl text-sm font-bold text-slate-500 hover:text-blue-600 transition border border-slate-200 bg-white" data-region="nam" onclick="filterRegion('nam')">Miền Nam</button>
+                    </div>
+                    <div class="grid md:grid-cols-3 gap-4">
+                        <select id="province-select" onchange="applyFilters()" class="w-full px-5 py-4 rounded-xl border border-slate-200 bg-white text-slate-800 font-semibold outline-none focus:border-blue-500 transition"></select>
+                        <select id="type-select" onchange="applyFilters()" class="w-full px-5 py-4 rounded-xl border border-slate-200 bg-white text-slate-800 font-semibold outline-none focus:border-blue-500 transition">
+                            <option value="all">Mọi loại hình</option>
+                            <option value="Công lập">Công lập</option>
+                            <option value="Tư nhân">Tư nhân</option>
+                        </select>
+                        <input id="hospital-search" type="text" oninput="applyFilters()" placeholder="Tìm tên bệnh viện..." class="w-full px-5 py-4 rounded-xl border border-slate-200 bg-white text-slate-800 font-semibold outline-none focus:border-blue-500 transition">
+                    </div>
+                </div>
+
+                <div id="hospital-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"></div>
+                <div id="no-results" class="hidden mt-10 text-center py-12">
+                    <p class="text-lg font-bold text-slate-800">Không tìm thấy bệnh viện phù hợp.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- THỐNG KÊ -->
+        <section id="stats" class="py-24 px-6">
+            <div class="max-w-7xl mx-auto grid gap-10 lg:grid-cols-2 items-center">
+                <div class="panel rounded-[2rem] p-10">
+                    <h2 class="text-4xl text-slate-900 font-bold font-display mb-4">Hạ tầng Dữ liệu</h2>
+                    <p class="text-slate-600 text-lg mb-8">Thống kê phân bổ bệnh viện trên toàn quốc đang có trong danh bạ MedConnect.</p>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="bg-blue-50 p-6 rounded-2xl border border-blue-100">
+                            <p class="text-sm font-bold text-blue-600 uppercase">Tổng cơ sở</p>
+                            <p id="metric-total-hospitals" class="text-4xl font-black text-slate-900 mt-2">0</p>
+                        </div>
+                        <div class="bg-emerald-50 p-6 rounded-2xl border border-emerald-100">
+                            <p class="text-sm font-bold text-emerald-600 uppercase">Tỉnh thành</p>
+                            <p id="metric-total-provinces" class="text-4xl font-black text-slate-900 mt-2">0</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="panel rounded-[2rem] p-8">
+                    <h3 class="text-xl font-bold text-slate-900 font-display mb-6 text-center">Tỷ lệ cơ sở theo khu vực</h3>
+                    <div class="chart-shell"><canvas id="regionChart"></canvas></div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-slate-950 px-6 pt-16 pb-12 border-t border-slate-800">
+        <div class="max-w-7xl mx-auto text-center">
+            <div class="flex items-center justify-center gap-3 mb-6">
+                <span class="w-8 h-8 rounded-lg bg-blue-600 text-white font-bold flex items-center justify-center">MC</span>
+                <span class="text-2xl font-bold text-white font-display">MedConnect<span class="text-blue-500">VN</span></span>
+            </div>
+            <p class="text-slate-400 text-sm mb-8">Nền tảng tra cứu y khoa ứng dụng AI. Trải nghiệm Typography đỉnh cao.</p>
+            <p class="text-xs text-slate-600 font-bold uppercase tracking-widest">© <span id="current-year"></span> MedConnect Vietnam.</p>
+        </div>
+    </footer>
+
+    <script>
+        // ==========================================
+        // QUAN TRỌNG: QUẢN LÝ KHÓA API
+        // 1. Để XEM TRƯỚC ngay trên giao diện này: BẮT BUỘC ĐỂ TRỐNG: const apiKey = "";
+        // 2. Nếu UP LÊN GITHUB cá nhân: DÁN KHÓA CỦA BẠN VÀO: const apiKey = "AIza...";
+        // ==========================================
+        const apiKey = ""; 
+        
+        const RECENT_KEY = "medconnect_recent_searches";
+        const quickQueries = [
+            "Công dụng và liều dùng Paracetamol",
+            "Vaccine HPV cần tiêm mấy mũi?",
+            "Trẻ bị sốt cao co giật phải làm sao?",
+            "Semaglutide dùng giảm cân được không?"
+        ];
+
+        const hospitalDb = [
+            { name: "Bệnh viện Bạch Mai", loc: "Hà Nội", region: "bac", type: "Công lập", rank: "Đặc biệt", tags: ["Đa khoa", "Nội khoa"] },
+            { name: "Bệnh viện Việt Đức", loc: "Hà Nội", region: "bac", type: "Công lập", rank: "Đặc biệt", tags: ["Ngoại khoa", "Cấp cứu"] },
+            { name: "Bệnh viện Nhi Trung ương", loc: "Hà Nội", region: "bac", type: "Công lập", rank: "Hạng I", tags: ["Nhi khoa"] },
+            { name: "Bệnh viện Đa khoa Tâm Anh", loc: "Hà Nội", region: "bac", type: "Tư nhân", rank: "Hạng I", tags: ["Sản nhi", "Tim mạch"] },
+            { name: "Bệnh viện Đa khoa tỉnh Bắc Ninh", loc: "Bắc Ninh", region: "bac", type: "Công lập", rank: "Hạng I", tags: ["Đa khoa"] },
+            { name: "Bệnh viện Sản Nhi Lào Cai", loc: "Lào Cai", region: "bac", type: "Công lập", rank: "Hạng I", tags: ["Sản nhi"] },
+            { name: "Bệnh viện Trung ương Huế", loc: "Thừa Thiên Huế", region: "trung", type: "Công lập", rank: "Đặc biệt", tags: ["Đa khoa"] },
+            { name: "Bệnh viện Đa khoa Đà Nẵng", loc: "Đà Nẵng", region: "trung", type: "Công lập", rank: "Hạng I", tags: ["Cấp cứu"] },
+            { name: "Bệnh viện Hoàn Mỹ Đà Nẵng", loc: "Đà Nẵng", region: "trung", type: "Tư nhân", rank: "Hạng I", tags: ["Đa khoa"] },
+            { name: "Bệnh viện Đa khoa tỉnh Thanh Hóa", loc: "Thanh Hóa", region: "trung", type: "Công lập", rank: "Hạng I", tags: ["Đa khoa"] },
+            { name: "Bệnh viện Chợ Rẫy", loc: "TP. HCM", region: "nam", type: "Công lập", rank: "Đặc biệt", tags: ["Đa khoa", "Cấp cứu"] },
+            { name: "Bệnh viện Đại học Y Dược", loc: "TP. HCM", region: "nam", type: "Công lập", rank: "Hạng I", tags: ["Chuyên sâu"] },
+            { name: "Bệnh viện Từ Dũ", loc: "TP. HCM", region: "nam", type: "Công lập", rank: "Hạng I", tags: ["Phụ sản"] },
+            { name: "BV Đa khoa Quốc tế Vinmec", loc: "TP. HCM", region: "nam", type: "Tư nhân", rank: "Quốc tế", tags: ["Ngoại khoa"] },
+            { name: "Bệnh viện Đa khoa tỉnh Bình Dương", loc: "Bình Dương", region: "nam", type: "Công lập", rank: "Hạng I", tags: ["Đa khoa"] },
+            { name: "Bệnh viện Đa khoa Hoàn Mỹ Cửu Long", loc: "Cần Thơ", region: "nam", type: "Tư nhân", rank: "Hạng I", tags: ["Miền Tây"] }
+        ];
+
+        let activeReg = "all";
+        let regionChart = null;
+        let currentResultText = "";
+
+        // --- TIỆN ÍCH GIAO DIỆN ---
+        function scrollToSection(id) {
+            const el = document.getElementById(id);
+            if (el) window.scrollTo({ top: el.offsetTop - 80, behavior: "smooth" });
+        }
+
+        function toggleClearButton() {
+            const input = document.getElementById("ai-query");
+            document.getElementById("clear-query").classList.toggle("hidden", input.value.trim() === "");
+        }
+
+        function clearAIQuery() {
+            const input = document.getElementById("ai-query");
+            input.value = "";
+            toggleClearButton();
+            input.focus();
+            setFeedback("Đã xóa nội dung.", "info");
+        }
+
+        function setFeedback(message, type = "info") {
+            const el = document.getElementById("ai-feedback");
+            el.textContent = message;
+            el.className = "mt-4 text-sm font-medium " + (type === "error" ? "text-red-400" : type === "success" ? "text-emerald-400" : "text-blue-400");
+        }
+
+        function setLoading(isLoading) {
+            document.getElementById("ai-loader").classList.toggle("hidden", !isLoading);
+            const btn = document.getElementById("ask-ai-btn");
+            btn.disabled = isLoading;
+            btn.textContent = isLoading ? "Đang phân tích..." : "Tra cứu chuyên sâu";
+        }
+
+        // --- XỬ LÝ LỊCH SỬ TRUY VẤN ---
+        function getRecent() { return JSON.parse(localStorage.getItem(RECENT_KEY) || "[]"); }
+        function saveRecent(query) {
+            if(!query) return;
+            let recent = getRecent().filter(q => q.toLowerCase() !== query.toLowerCase());
+            recent.unshift(query);
+            localStorage.setItem(RECENT_KEY, JSON.stringify(recent.slice(0, 5)));
+            renderRecent();
+        }
+        function clearRecentSearches() { localStorage.removeItem(RECENT_KEY); renderRecent(); }
+        
+        function renderQuickQueries() {
+            document.getElementById("quick-query-list").innerHTML = quickQueries.map(q => 
+                `<button onclick="fillAndSearch('${q}')" class="px-4 py-2 rounded-lg bg-white/5 border border-white/10 text-sm text-slate-300 hover:bg-blue-600 hover:text-white transition text-left">${q}</button>`
+            ).join("");
+        }
+        
+        function renderRecent() {
+            const recent = getRecent();
+            const container = document.getElementById("recent-searches");
+            if (!recent.length) { container.innerHTML = '<p class="text-sm text-slate-500">Chưa có dữ liệu.</p>'; return; }
+            container.innerHTML = recent.map(q => 
+                `<button onclick="fillAndSearch('${q}')" class="px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-sm text-slate-300 hover:bg-white/10 transition text-left truncate">${q}</button>`
+            ).join("");
+        }
+
+        function fillAndSearch(q) {
+            document.getElementById("ai-query").value = q;
+            toggleClearButton();
+            askAI();
+        }
+
+        // --- GỌI GOOGLE GEMINI AI TRỰC TIẾP ---
+        async function askAI() {
+            const input = document.getElementById("ai-query");
+            const query = input.value.trim();
+            const resultBox = document.getElementById("ai-result");
+
+            if (!query) {
+                setFeedback("Vui lòng nhập nội dung cần tra cứu.", "error");
+                input.focus(); return;
+            }
+
+            resultBox.classList.add("hidden");
+            setLoading(true);
+            setFeedback("Đang kết nối và định hình tài liệu...", "info");
+
+            const systemPrompt = "Bạn là chuyên gia y tế của MedConnect VN. Phân tích chi tiết câu hỏi. TRÌNH BÀY DƯỚI DẠNG MARKDOWN CHUYÊN NGHIỆP: Dùng dấu # cho Tiêu đề chính, ## cho phần phụ, in đậm **từ khóa quan trọng**, dùng danh sách bullet '-' để trình bày. Bố cục: 1. Tổng quan. 2. Liều/Cách dùng (nếu có). 3. Tác dụng phụ/Thận trọng. 4. Khi nào cần gặp bác sĩ. LUÔN CẢNH BÁO: Thông tin chỉ mang tính tham khảo.";
+
+            // Tự động nhận diện model: Nếu để trống dùng Preview nội bộ, nếu dán Key dùng 2.0-flash ổn định nhất
+            const modelToUse = apiKey === "" ? "gemini-2.5-flash-preview-09-2025" : "gemini-2.0-flash";
+
+            try {
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${modelToUse}:generateContent?key=${apiKey}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: query }] }],
+                        systemInstruction: { parts: [{ text: systemPrompt }] },
+                        tools: [{ "google_search": {} }]
+                    })
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error?.message || "Từ chối truy cập API");
+                }
+                const data = await response.json();
+                
+                const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+                const sources = data.candidates?.[0]?.groundingMetadata?.groundingAttributions || [];
+
+                if (!text) throw new Error("Không có phản hồi dạng văn bản");
+
+                currentResultText = text;
+                renderGeminiResult(query, text, sources);
+                saveRecent(query);
+                setFeedback("Tài liệu đã được tải và định dạng thành công.", "success");
+
+            } catch (error) {
+                setFeedback("Lỗi khi kết nối với AI: " + error.message + " (Kiểm tra lại Khóa API nếu bạn đang dùng trên GitHub)", "error");
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        // --- PARSER MARKDOWN & TYPOGRAPHY ---
+        function parseMarkdownToHTML(md) {
+            let html = md
+                .replace(/^### (.*$)/gim, '<h3>$1</h3>')
+                .replace(/^## (.*$)/gim, '<h2>$1</h2>')
+                .replace(/^# (.*$)/gim, '<h1>$1</h1>')
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                .replace(/\*(.*?)\*/g, '<em>$1</em>')
+                .replace(/\n\s*[-*]\s+(.*)/g, '\n<ul><li>$1</li></ul>') // Chuyển dấu - hoặc * thành list
+                .replace(/<\/ul>\n<ul>/g, '\n') // Gộp các list liền nhau
+                .replace(/\n/g, '<br>'); // Xuống dòng
+            
+            // Dọn dẹp thẻ br thừa để các khoảng trống (spacing) được CSS lo
+            html = html.replace(/<\/(h1|h2|h3|ul)>\s*<br>/g, '</$1>');
+            return html;
+        }
+
+        function renderGeminiResult(query, text, sources) {
+            const resultBox = document.getElementById("ai-result");
+            
+            // Lọc và render nguồn hiển thị
+            let sourceHtml = "";
+            if(sources.length > 0) {
+                const uniqueSources = [];
+                sources.forEach(s => {
+                    if(s.web?.uri && !uniqueSources.some(u => u.uri === s.web.uri)) uniqueSources.push(s.web);
+                });
+                sourceHtml = `
+                    <div class="mt-8 pt-6 border-t border-slate-700">
+                        <h4 class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-4">Nguồn Y khoa Đối chiếu:</h4>
+                        <div class="grid sm:grid-cols-2 gap-3">
+                            ${uniqueSources.map(s => `
+                                <a href="${s.uri}" target="_blank" class="block p-4 rounded-xl bg-white/5 border border-white/10 hover:border-blue-500/50 hover:bg-white/10 transition">
+                                    <p class="text-sm font-bold text-blue-300 truncate mb-1">${s.title}</p>
+                                    <p class="text-xs text-slate-500 truncate">${new URL(s.uri).hostname}</p>
+                                </a>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+
+            resultBox.innerHTML = `
+                <div class="panel-strong rounded-[2.5rem] p-8 md:p-12 result-enter">
+                    <div class="flex items-center gap-3 mb-6 border-b border-white/10 pb-4">
+                        <span class="status-pill status-online"><span class="signal-dot signal-dot--ok"></span> Trí tuệ Nhân tạo</span>
+                        <span class="text-xs font-bold text-slate-400 uppercase tracking-widest">Đề tài: ${query}</span>
+                    </div>
+                    
+                    <!-- KHI VĂN BẢN VÀO ĐÂY SẼ ĐƯỢC CSS TYPOGRAPHY PHÙ PHÉP TRỞ NÊN SIÊU ĐẸP -->
+                    <div class="article-content">
+                        ${parseMarkdownToHTML(text)}
+                    </div>
+
+                    ${sourceHtml}
+                </div>
+            `;
+            resultBox.classList.remove("hidden");
+        }
+
+        async function copyCurrentResult() {
+            if(!currentResultText) return setFeedback("Chưa có kết quả để sao chép.", "error");
+            try {
+                await navigator.clipboard.writeText(currentResultText);
+                setFeedback("Đã sao chép vào bộ nhớ đệm thành công.", "success");
+            } catch(e) {
+                setFeedback("Trình duyệt chặn tính năng sao chép tự động.", "error");
+            }
+        }
+
+
+        // --- CHỨC NĂNG BỆNH VIỆN ---
+        function populateProvinceOptions() {
+            const select = document.getElementById("province-select");
+            const provinces = [...new Set(hospitalDb.map(h => h.loc))].sort();
+            select.innerHTML = '<option value="all">Tất cả tỉnh thành</option>' + provinces.map(p => `<option value="${p}">${p}</option>`).join("");
+        }
+
+        function filterRegion(reg) {
+            activeReg = reg;
+            document.querySelectorAll('.reg-btn').forEach(btn => {
+                const isActive = btn.dataset.region === reg;
+                btn.className = `reg-btn px-6 py-2.5 rounded-xl text-sm font-bold transition border border-slate-200 ${isActive ? 'pill-active' : 'bg-white text-slate-500 hover:text-blue-600'}`;
+            });
+            applyFilters();
+        }
+
+        function applyFilters() {
+            const prov = document.getElementById("province-select").value;
+            const type = document.getElementById("type-select").value;
+            const term = document.getElementById("hospital-search").value.toLowerCase();
+            
+            const filtered = hospitalDb.filter(h => {
+                return (activeReg === "all" || h.region === activeReg) &&
+                       (prov === "all" || h.loc === prov) &&
+                       (type === "all" || h.type === type) &&
+                       (!term || h.name.toLowerCase().includes(term) || h.tags.join(" ").toLowerCase().includes(term));
+            });
+
+            const grid = document.getElementById("hospital-grid");
+            const empty = document.getElementById("no-results");
+            
+            if(filtered.length === 0) {
+                grid.innerHTML = "";
+                empty.classList.remove("hidden");
+            } else {
+                empty.classList.add("hidden");
+                grid.innerHTML = filtered.map(h => `
+                    <div class="hospital-card p-6 rounded-2xl bg-white flex flex-col justify-between">
+                        <div>
+                            <div class="flex justify-between items-center mb-4">
+                                <span class="px-3 py-1 rounded-full text-[10px] font-bold uppercase ${h.type==='Tư nhân' ? 'bg-emerald-50 text-emerald-600' : 'bg-blue-50 text-blue-600'}">${h.type}</span>
+                                <span class="text-xs font-bold text-slate-400">📍 ${h.loc}</span>
+                            </div>
+                            <h3 class="text-xl font-bold font-display text-slate-900 mb-2">${h.name}</h3>
+                            <p class="text-sm font-semibold text-slate-500 mb-4">${h.rank}</p>
+                            <div class="flex flex-wrap gap-2">
+                                ${h.tags.map(t => `<span class="px-2 py-1 bg-slate-50 border border-slate-100 rounded-md text-[11px] font-bold text-slate-500">${t}</span>`).join('')}
+                            </div>
+                        </div>
+                        <a href="https://www.google.com/maps/search/${encodeURIComponent(h.name + " " + h.loc)}" target="_blank" class="mt-6 block text-center py-3 bg-slate-900 text-white rounded-xl text-sm font-bold hover:bg-blue-600 transition">Bản đồ chỉ đường</a>
+                    </div>
+                `).join("");
+            }
+        }
+
+        // --- THỐNG KÊ ---
+        function updateMetrics() {
+            document.getElementById("metric-total-hospitals").textContent = hospitalDb.length;
+            document.getElementById("metric-total-provinces").textContent = new Set(hospitalDb.map(h => h.loc)).size;
+            document.getElementById("current-year").textContent = new Date().getFullYear();
+        }
+
+        function initChart() {
+            const ctx = document.getElementById("regionChart").getContext("2d");
+            const counts = [
+                hospitalDb.filter(h => h.region === "bac").length,
+                hospitalDb.filter(h => h.region === "trung").length,
+                hospitalDb.filter(h => h.region === "nam").length
+            ];
+
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Miền Bắc', 'Miền Trung', 'Miền Nam'],
+                    datasets: [{ data: counts, backgroundColor: ['#2563eb', '#10b981', '#f59e0b'], borderWidth: 0 }]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false, cutout: '70%',
+                    plugins: { legend: { position: 'bottom', labels: { font: { family: 'Inter', weight: 'bold' } } } }
+                }
+            });
+        }
+
+        window.onload = () => {
+            populateProvinceOptions();
+            renderQuickQueries();
+            renderRecent();
+            updateMetrics();
+            initChart();
+            applyFilters();
+        };
+    </script>
+</body>
+</html>
